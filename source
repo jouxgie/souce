@@ -2,8 +2,8 @@ if not game:IsLoaded() then
 	game.Loaded:Wait()
 end
 
-local FiftyFive 	           = getgenv().FiftyFive
-local OldSilentAimPart     = FiftyFive.Silent.Part
+local Stab 	           = getgenv().Stab
+local OldSilentAimPart     = Stab.Silent.Part
 local SilentTarget         = nil
 local AimTarget            = nil
 local DetectedDesync       = false
@@ -124,22 +124,22 @@ Script.Functions.GetClosestPlayer = (function()
             if not Script.Functions.OnScreen(v.Character.HumanoidRootPart) then 
                 continue 
             end
-            if FiftyFive.Checks.WallCheck and not Script.Functions.VisibleCheck(v.Character.HumanoidRootPart, v.Character) then 
+            if Stab.Checks.WallCheck and not Script.Functions.VisibleCheck(v.Character.HumanoidRootPart, v.Character) then 
                 continue 
             end
-            if FiftyFive.Checks.KoCheck and v.Character:FindFirstChild("BodyEffects") then
+            if Stab.Checks.KoCheck and v.Character:FindFirstChild("BodyEffects") then
                 local KoCheck = v.Character.BodyEffects:FindFirstChild("K.O").Value
                 local Grabbed = v.Character:FindFirstChild("GRABBING_CONSTRAINT") ~= nil
                 if KoCheck or Grabbed then
                     continue
                 end
             end
-            if FiftyFive.Checks.VisibleCheck and v.Character:FindFirstChild("Head") then
+            if Stab.Checks.VisibleCheck and v.Character:FindFirstChild("Head") then
                 if v.Character.Head.Transparency > 0.5 then
                     continue
                 end
             end
-            if FiftyFive.Checks.CrewCheck and Script.Functions.FindCrew(v) and v.DataFolder.Information:FindFirstChild("Crew").Value == Client.DataFolder.Information:FindFirstChild("Crew").Value then
+            if Stab.Checks.CrewCheck and Script.Functions.FindCrew(v) and v.DataFolder.Information:FindFirstChild("Crew").Value == Client.DataFolder.Information:FindFirstChild("Crew").Value then
                 continue
             end
             local Position = Camera:WorldToScreenPoint(v.Character.HumanoidRootPart.Position)
@@ -156,14 +156,14 @@ end)
 
 local OldIndex = nil 
 OldIndex = hookmetamethod(game, "__index", (function(self, Index)
-    if not checkcaller() and Mouse and self == Mouse and Index == "Hit" and FiftyFive.Silent.Enabled and AntiAimViewer then
-        if Script.Functions.Alive(SilentTarget) and Players[tostring(SilentTarget)].Character:FindFirstChild(FiftyFive.Silent.Part) then
+    if not checkcaller() and Mouse and self == Mouse and Index == "Hit" and Stab.Silent.Enabled and AntiAimViewer then
+        if Script.Functions.Alive(SilentTarget) and Players[tostring(SilentTarget)].Character:FindFirstChild(Stab.Silent.Part) then
             local EndPoint = nil
-            local TargetPos = Players[tostring(SilentTarget)].Character[FiftyFive.Silent.Part].CFrame
+            local TargetPos = Players[tostring(SilentTarget)].Character[Stab.Silent.Part].CFrame
             local TargetVel = Players[tostring(SilentTarget)].Character.HumanoidRootPart.Velocity
             local TargetMov = Players[tostring(SilentTarget)].Character.Humanoid.MoveDirection
 
-            if FiftyFive.Resolver.Desync then
+            if Stab.Resolver.Desync then
                 local Magnitude = TargetVel.magnitude
                 local Magnitude2 = TargetMov.magnitude
                 if Magnitude > 86 then
@@ -178,14 +178,14 @@ OldIndex = hookmetamethod(game, "__index", (function(self, Index)
             else
                 DetectedDesync = false
             end
-            if FiftyFive.Checks.AntiGroundShots then
+            if Stab.Checks.AntiGroundShots then
                 if TargetVel.Y < -20 then
                     DetectedFreeFall = true
                 else
                     DetectedFreeFall = false
                 end
             end
-            if FiftyFive.Resolver.UndergroundAA then 
+            if Stab.Resolver.UndergroundAA then 
                 if TargetVel.Y < -30 then            
                     DetectedUnderGround = true
                 else
@@ -198,13 +198,13 @@ OldIndex = hookmetamethod(game, "__index", (function(self, Index)
             if TargetPos ~= nil then
                 if DetectedDesync then
                     local MoveDirection = TargetMov * 16
-                    EndPoint = TargetPos + (MoveDirection * FiftyFive.Silent.PredictionVelocity)
+                    EndPoint = TargetPos + (MoveDirection *Stab.Silent.PredictionVelocity)
                 elseif DetectedUnderGround then
-                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, 0, TargetVel.Z) * FiftyFive.Silent.PredictionVelocity)
+                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, 0, TargetVel.Z) *Stab.Silent.PredictionVelocity)
                 elseif DetectedFreeFall then
-                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, (TargetVel.Y * 0.5), TargetVel.Z) * FiftyFive.Silent.PredictionVelocity)
-                elseif FiftyFive.Silent.PredictMovement then
-                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, (TargetVel.Y * 0.5), TargetVel.Z) * FiftyFive.Silent.PredictionVelocity)
+                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, (TargetVel.Y * 0.5), TargetVel.Z) *Stab.Silent.PredictionVelocity)
+                elseif Stab.Silent.PredictMovement then
+                    EndPoint = TargetPos + (Vector3.new(TargetVel.X, (TargetVel.Y * 0.5), TargetVel.Z) *Stab.Silent.PredictionVelocity)
                 else
                     EndPoint = TargetPos
                 end
@@ -219,13 +219,13 @@ OldIndex = hookmetamethod(game, "__index", (function(self, Index)
 end))
 
 Script.Functions.SilentMisc = (function()
-	if FiftyFive.Silent.Enabled then
+	if Stab.Silent.Enabled then
        if Script.Functions.Alive(SilentTarget) then
-            if FiftyFive.Silent.UseAirPart then
+            if Stab.Silent.UseAirPart then
                 if SilentTarget.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
-                    FiftyFive.Silent.Part = FiftyFive.Silent.AirPart
+                   Stab.Silent.Part = Stab.Silent.AirPart
                 else
-                    FiftyFive.Silent.Part = OldSilentAimPart
+                   Stab.Silent.Part = OldSilentAimPart
                 end
             end
     	end
@@ -236,12 +236,12 @@ Script.Functions.UpdateFOV = (function()
     if (not Script.Drawing.SilentCircle) then
         return Script.Drawing.SilentCircle
     end
-    Script.Drawing.SilentCircle.Visible = FiftyFive.SilentFOV.Visible
-    Script.Drawing.SilentCircle.Color = FiftyFive.SilentFOV.Color
-    Script.Drawing.SilentCircle.Filled = FiftyFive.SilentFOV.Filled
-    Script.Drawing.SilentCircle.Transparency = FiftyFive.SilentFOV.Transparency
+    Script.Drawing.SilentCircle.Visible = Stab.SilentFOV.Visible
+    Script.Drawing.SilentCircle.Color = Stab.SilentFOV.Color
+    Script.Drawing.SilentCircle.Filled = Stab.SilentFOV.Filled
+    Script.Drawing.SilentCircle.Transparency = Stab.SilentFOV.Transparency
     Script.Drawing.SilentCircle.Position = Vector2.new(Mouse.X, Mouse.Y + GuiS:GetGuiInset().Y)
-	Script.Drawing.SilentCircle.Radius = FiftyFive.SilentFOV.Radius * 3
+	Script.Drawing.SilentCircle.Radius = Stab.SilentFOV.Radius * 3
 end)
 
 RS.Heartbeat:Connect((function()
@@ -251,215 +251,29 @@ end))
 
 RS.RenderStepped:Connect((function()
     Script.Functions.UpdateFOV()
-    if FiftyFive.Silent.Enabled and Script.Functions.Alive(AimTarget) and FiftyFive.Silent.ClosestPart and Script.Functions.Alive(SilentTarget) then
+    if Stab.Silent.Enabled and Script.Functions.Alive(AimTarget) and Stab.Silent.ClosestPart and Script.Functions.Alive(SilentTarget) then
         local currentpart = tostring(Script.Functions.GetClosestBodyPart(AimTarget.Character))
-        if FiftyFive.Silent.ClosestPart then
-            FiftyFive.Silent.Part = currentpart
-            OldSilentAimPart = FiftyFive.Silent.Part
+        if Stab.Silent.ClosestPart then
+            Stab.Silent.Part = currentpart
+            OldSilentAimPart = Stab.Silent.Part
         end
         return
     end
-    if FiftyFive.Silent.Enabled then
-        if FiftyFive.Silent.ClosestPart and Script.Functions.Alive(SilentTarget) then
-            FiftyFive.Silent.Part = tostring(Script.Functions.GetClosestBodyPart(SilentTarget.Character))
-            OldSilentAimPart = FiftyFive.Silent.Part
+    if Stab.Silent.Enabled then
+        if Stab.Silent.ClosestPart and Script.Functions.Alive(SilentTarget) then
+            Stab.Silent.Part = tostring(Script.Functions.GetClosestBodyPart(SilentTarget.Character))
+            OldSilentAimPart = Stab.Silent.Part
         end
     end
 end))
-
-getgenv().Prediction = 0.133
-getgenv().AimPart = "HumanoidRootPart"
-getgenv().Key = "Q"
-getgenv().DisableKey = "P"
-
-getgenv().FOV = true
-getgenv().ShowFOV = false
-getgenv().FOVSize = 55
-
---// Variables (Service)
-
-local Players = game:GetService("Players")
-local RS = game:GetService("RunService")
-local WS = game:GetService("Workspace")
-local GS = game:GetService("GuiService")
-local SG = game:GetService("StarterGui")
-
---// Variables (regular)
-
-local LP = Players.LocalPlayer
-local Mouse = LP:GetMouse()
-local Camera = WS.CurrentCamera
-local GetGuiInset = GS.GetGuiInset
-
-local AimlockState = true
-local Locked
-local Victim
-
-local SelectedKey = getgenv().Key
-local SelectedDisableKey = getgenv().DisableKey
-
---// Notification function
-
-function Notify(tx)
-    SG:SetCore("SendNotification", {
-        Title = "Stab Camlock",
-        Text = tx,
-        Duration = 5
-    })
-end
-
-getgenv().Loaded = true -- Set loaded to true upon script execution
-
---// FOV Circle
-
-local fov = Drawing.new("Circle")
-fov.Filled = false
-fov.Transparency = 1
-fov.Thickness = 1
-fov.Color = Color3.fromRGB(255, 255, 0)
-fov.NumSides = 1000
-
---// Smoothness
-local Smoothness = 0.1388 -- Default smoothness factor
-local SmoothEnabled = true -- Toggleable smoothness
-
---// Functions
-
-function update()
-    if getgenv().FOV == true then
-        if fov then
-            fov.Radius = getgenv().FOVSize * 2
-            fov.Visible = getgenv().ShowFOV
-            fov.Position = Vector2.new(Mouse.X, Mouse.Y + GetGuiInset(GS).Y)
-
-            return fov
-        end
-    end
-end
-
-function getClosest()
-    local closestPlayer
-    local shortestDistance = math.huge
-
-    for i, v in pairs(game.Players:GetPlayers()) do
-        local notKO = v.Character:WaitForChild("BodyEffects")["K.O"].Value ~= true
-        local notGrabbed = v.Character:FindFirstChild("GRABBING_COINSTRAINT") == nil
-
-        if v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health ~= 0 and v.Character:FindFirstChild(getgenv().AimPart) and notKO and notGrabbed then
-            local pos = Camera:WorldToViewportPoint(v.Character.PrimaryPart.Position)
-            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(Mouse.X, Mouse.Y)).magnitude
-
-            if (getgenv().FOV) then
-                if (fov.Radius > magnitude and magnitude < shortestDistance) then
-                    closestPlayer = v
-                    shortestDistance = magnitude
-                end
-            else
-                if (magnitude < shortestDistance) then
-                    closestPlayer = v
-                    shortestDistance = magnitude
-                end
-            end
-        end
-    end
-    return closestPlayer
-end
-
---// Checks if key is down
-
-Mouse.KeyDown:Connect(function(k)
-    SelectedKey = SelectedKey:lower()
-    SelectedDisableKey = SelectedDisableKey:lower()
-    if k == SelectedKey then
-        if AimlockState == true then
-            Locked = not Locked
-            if Locked then
-                Victim = getClosest()
-
-                Notify("Locked onto: " .. tostring(Victim.Character.Humanoid.DisplayName))
-            else
-                if Victim ~= nil then
-                    Victim = nil
-
-                    Notify("Unlocked!")
-                end
-            end
-        else
-            Notify("Aimlock is not enabled!")
-        end
-    end
-    if k == SelectedDisableKey then
-        AimlockState = not AimlockState
-    end
-end)
-
---// Loop update FOV and loop camera lock onto target
-
-RS.RenderStepped:Connect(function()
-    update()
-    if AimlockState == true then
-        if Victim ~= nil then
-            local targetPosition = Victim.Character[getgenv().AimPart].Position + Victim.Character[getgenv().AimPart].Velocity * getgenv().Prediction
-            local currentCFrame = Camera.CFrame
-            local newCFrame
-            if SmoothEnabled then
-                newCFrame = CFrame.new(currentCFrame.p, targetPosition)
-                Camera.CFrame = currentCFrame:Lerp(newCFrame, Smoothness)
-            else
-                newCFrame = CFrame.new(currentCFrame.p, targetPosition)
-                Camera.CFrame = newCFrame
-            end
-        end
-    end
-end)
-
-while wait() do
-    if getgenv().AutoPrediction == true then
-        local pingvalue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
-        local split = string.split(pingvalue, '(')
-        local ping = tonumber(split[1])
-        if ping < 225 then
-            getgenv().Prediction = 1.4
-        elseif ping < 215 then
-            getgenv().Prediction = 1.2
-        elseif ping < 205 then
-            getgenv().Prediction = 1.0
-        elseif ping < 190 then
-            getgenv().Prediction = 0.10
-        elseif ping < 180 then
-            getgenv().Prediction = 0.12
-        elseif ping < 170 then
-            getgenv().Prediction = 0.15
-        elseif ping < 160 then
-            getgenv().Prediction = 0.18
-        elseif ping < 150 then
-            getgenv().Prediction = 0.110
-        elseif ping < 140 then
-            getgenv().Prediction = 0.113
-        elseif ping < 130 then
-            getgenv().Prediction = 0.116
-        elseif ping < 120 then
-            getgenv().Prediction = 0.120
-        elseif ping < 110 then
-            getgenv().Prediction = 0.124
-        elseif ping < 105 then
-            getgenv().Prediction = 0.138
-        elseif ping < 90 then
-            getgenv().Prediction = 0.133
-        elseif ping < 80 then
-            getgenv().Prediction = 0.134
-        elseif ping < 70 then
-            getgenv().Prediction = 0.133
-        elseif ping < 60 then
-            getgenv().Prediction = 0.1423
-        elseif ping < 50 then
-            getgenv().Prediction = 0.1225
-        elseif ping < 40 then
-            getgenv(). Prediction = 0.1256
-        elseif ping < 30 then
-            getgenv().Prediction = 0.12
-        elseif ping < 20 then
-            getgenv().Prediction = 0.157
+for _, collectedItem in pairs(getgc(true)) do
+    if pcall(function() return rawget(collectedItem, "indexInstance") end) then
+        local indexInstanceProperty = rawget(collectedItem, "indexInstance")
+        if type(indexInstanceProperty) == "table" and indexInstanceProperty[1] == "kick" then
+            collectedItem.kickHandler = {
+                "kick",
+                function() wait(9e9) return coroutine.yield() end
+            }
         end
     end
 end
